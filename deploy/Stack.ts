@@ -10,7 +10,7 @@ export class Stack extends cdk.Stack {
 
     const server = new nodejs.NodejsFunction(this, 'server', {
       functionName: 'nodejs-aws-cart-api',
-      entry: 'dist/main.lambda.js',
+      entry: 'dist/src/main.lambda.js',
       timeout: cdk.Duration.seconds(30),
       memorySize: 1024,
       runtime: lambda.Runtime.NODEJS_20_X,
