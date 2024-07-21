@@ -10,7 +10,7 @@
     "build": "nest build",
     "db:generate": "npx prisma generate",
     "db:migrate": "npx prisma migrate dev",
-    "db:seed": "tsx prisma/seed.ts",
+    "db:seed": "npx prisma db seed",
     "db:seed2": "node -r dotenv/config ./scripts/seed.js",
     "deploy": "npm run build && cdk deploy",
     "format": "prettier --write src test deploy",
@@ -34,6 +34,8 @@
     "@nestjs/passport": "^10.0.0",
     "@nestjs/platform-express": "^10.0.3",
     "@prisma/client": "^5.17.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
     "dotenv": "^16.4.5",
     "helmet": "^7.0.0",
     "passport": "^0.6.0",
@@ -90,6 +92,6 @@
     "testEnvironment": "node"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "ts-node prisma/seed.ts"
   }
 }
