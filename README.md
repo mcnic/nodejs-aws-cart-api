@@ -121,3 +121,6 @@ Nest is [MIT licensed](LICENSE).
 `npx prisma generate` for renew prisma
 `npm run db:migrate` for migrate data after change schema
 
+## TODO
+
+- add auth and check it in CartService
