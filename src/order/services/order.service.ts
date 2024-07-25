@@ -1,39 +1,41 @@
 import { Injectable } from '@nestjs/common';
-import { v4 } from 'uuid';
-
-import { Order } from '../models';
+// import { v4 } from 'uuid';
+import { Order, OrderDto } from '../models';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class OrderService {
-  private orders: Record<string, Order> = {}
+  constructor(private prismaService: PrismaService) {}
 
-  findById(orderId: string): Order {
-    return this.orders[ orderId ];
+  // async findById(orderId: string): Promise<Order> {
+  //   const order = await this.prismaService.order.findFirst({
+  //     where: {
+  //       id: orderId,
+  //     },
+  //   });
+
+  //   return plainToClass(Order, order);
+  // }
+
+  async create(dto: OrderDto): Promise<Order> {
+    const order = await this.prismaService.createOrder(dto)
+
+    return plainToClass(Order, order);
   }
 
-  create(data: any) {
-    const id = v4()
-    const order = {
-      ...data,
-      id,
-      status: 'inProgress',
-    };
+  //  async update(orderId, data: OrderDto) {
+  //     const findedOrder = this.findById(orderId);
 
-    this.orders[ id ] = order;
+  //     if (!findedOrder) {
+  //       throw new Error('Order does not exist.');
+  //     }
 
-    return order;
-  }
-
-  update(orderId, data) {
-    const order = this.findById(orderId);
-
-    if (!order) {
-      throw new Error('Order does not exist.');
-    }
-
-    this.orders[ orderId ] = {
-      ...data,
-      id: orderId,
-    }
-  }
+  //     const order = await this.prismaService.order.update({
+  //       where: { id: orderId },
+  //       data: {
+  //         ...data,
+  //       } as any,
+  //     });
+  //   }
 }

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-
 import { v4 } from 'uuid';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { plainToClass } from 'class-transformer';
 
 import { Cart } from '../models';
-import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class CartService {
@@ -12,7 +12,9 @@ export class CartService {
   constructor(private prisma: PrismaService) {}
 
   async findByUserId(userId: string): Promise<Cart> {
-    return await this.prisma.findCartByUserId(userId);
+    const cart = await this.prisma.findCartByUserId(userId);
+
+    return plainToClass(Cart, cart);
   }
 
   createByUserId(userId: string) {

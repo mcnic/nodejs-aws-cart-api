@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { plainToClass } from 'class-transformer';
-import { Cart, CartStatuses } from '../cart/models';
+
+import { CartStatuses } from '../cart/models';
+import { OrderDto } from 'src/order/models';
 
 @Injectable()
 export class PrismaService extends PrismaClient {
-  async findCartByUserId(userId: string): Promise<Cart> {
-    const cart = await this.cart.findFirst({
+  async findCartByUserId(userId: string) {
+    return await this.cart.findFirst({
       where: {
         // user_id: userId, - todo: add auth
         status: CartStatuses.OPEN,
@@ -20,9 +21,86 @@ export class PrismaService extends PrismaClient {
         },
       },
     });
-    
-    console.log({ cart });
+  }
 
-    return plainToClass(Cart, cart);
+  async createCartByUserId(id: string) {
+    const createdCart = await this.cart.create({
+      data: { user_id: id },
+      include: {
+        items: {
+          select: { product_id: true, count: true },
+        },
+      },
+    });
+    return createdCart;
+  }
+
+  async findOrCreateCartByUserId(userId: string) {
+    return (
+      (await this.findCartByUserId(userId)) ??
+      (await this.createCartByUserId(userId))
+    );
+  }
+
+  // async updateCartByUserId(userId: string, updatedItem: CartItemDto) {
+  //   const cart = await this.findOrCreateCartByUserId(userId);
+
+  //   const updatedCart = await this.cart.update({
+  //     where: { id: cart.id },
+  //     data: {
+  //       items: {
+  //         upsert: {
+  //           where: {
+  //             cart_id_product_id: {
+  //               cart_id: cart.id,
+  //               product_id: updatedItem.product_id,
+  //             },
+  //           },
+  //           create: {
+  //             product_id: updatedItem.product_id,
+  //             count: updatedItem.count,
+  //           },
+  //           update: { count: updatedItem.count },
+  //         },
+  //       },
+  //       updated_at: new Date(),
+  //     },
+  //     include: {
+  //       items: {
+  //         select: { product_id: true, count: true },
+  //       },
+  //     },
+  //   });
+
+  //   return updatedCart;
+  // }
+
+  async createOrder(orderDto: any) {
+    const [createdOrder, updatedCart] = await this.$transaction([
+      this.order.create({
+        data: orderDto,
+        include: {
+          cart: false,
+        },
+      }),
+      this.cart.update({
+        where: { id: orderDto.cart_id },
+        data: {
+          status: CartStatuses.ORDERED,
+          updated_at: new Date(),
+        },
+        select: {
+          id: true,
+          status: true,
+          items: {
+            select: {
+              product_id: true,
+              count: true,
+            },
+          },
+        },
+      }),
+    ]);
+    return { ...createdOrder, cart: { ...updatedCart } };
   }
 }

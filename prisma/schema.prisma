@@ -1,7 +1,7 @@
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["prismaSchemaFolder", "relationJoins", "fullTextSearch", "fullTextIndex"]
-  // fix error in Lambda 'Prisma Client could not locate the Query Engine for runtime "rhel-openssl-3.0.x".'
+  // for fixing error in Lambda 'Prisma Client could not locate the Query Engine for runtime "rhel-openssl-3.0.x".'
   binaryTargets   = ["native", "rhel-openssl-3.0.x"]
 }
 
@@ -45,15 +45,37 @@ model Cart {
   status     CartStatuses @default(OPEN)
   items      CartItem[]
   user       User         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  orders     Order?
 
   @@map("carts")
 }
 
 model User {
-  id       String @id @default(uuid())
-  name     String @unique
+  id       String  @id @default(uuid())
+  name     String  @unique
   password String
   carts    Cart[]
+  orders   Order[]
 
   @@map("users")
+}
+
+enum OederStatuses {
+  CREATED
+  SHIPPED
+}
+
+model Order {
+  id       String        @id @default(uuid())
+  user_id  String
+  cart_id  String        @unique
+  payment  Json
+  delivery Json
+  comments String
+  status   OederStatuses @default(CREATED)
+  total    Int
+  user     User          @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  cart     Cart          @relation(fields: [cart_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("orders")
 }
