@@ -11,8 +11,8 @@ export class CartService {
 
   constructor(private prisma: PrismaService) {}
 
-  findByUserId(userId: string): Promise<Cart> {
-    return this.prisma.findCartByUserId(userId);
+  async findByUserId(userId: string): Promise<Cart> {
+    return await this.prisma.findCartByUserId(userId);
   }
 
   createByUserId(userId: string) {

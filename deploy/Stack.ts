@@ -1,34 +1,50 @@
 import * as cdk from 'aws-cdk-lib';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
-import * as nodejs from 'aws-cdk-lib/aws-lambda-nodejs';
+import { Code, Function, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
-import { constants } from './constants';
+import 'dotenv/config';
 
 export class Stack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: cdk.StackProps) {
     super(scope, id, props);
 
-    const server = new nodejs.NodejsFunction(this, 'server', {
+    const PG_USER = process.env.PG_USER ?? '';
+    const PG_PASSWORD = process.env.PG_PASSWORD ?? '';
+    const PG_HOST = process.env.PG_HOST ?? '';
+    const PG_PORT = Number(process.env.PG_PORT) ?? 5432;
+    const PG_DB = process.env.PG_DB ?? '';
+    const DATABASE_URL = `postgresql://${PG_USER}:${PG_PASSWORD}@${PG_HOST}:${PG_PORT}/${PG_DB}`;
+
+    // not worked - need add ssl library, using case bellow
+    // const cartApiHandler = new nodejs.NodejsFunction(this, 'CartApiLambda', {
+    //   functionName: 'nodejs-aws-cart-api',
+    //   entry: 'dist/handlers/cart.js',
+    //   timeout: cdk.Duration.seconds(30),
+    //   memorySize: 1024,
+    //   runtime: lambda.Runtime.NODEJS_20_X,
+    //   environment: {
+    //     DATABASE_URL,
+    //   },
+    // });
+
+    const cartApiHandler = new Function(this, 'CartHandler', {
       functionName: 'nodejs-aws-cart-api',
-      entry: 'dist/src/main.lambda.js',
+      code: Code.fromAsset('dist/handlers/cart'),
+      handler: 'cart.handler',
+      runtime: Runtime.NODEJS_20_X,
       timeout: cdk.Duration.seconds(30),
-      memorySize: 1024,
-      runtime: lambda.Runtime.NODEJS_20_X,
       environment: {
-        RDS_CONNECTION_URL: constants.RDS_CONNECTION_URL,
+        DATABASE_URL,
       },
-      bundling: {
-        externalModules: [
-          '@nestjs/microservices',
-          '@nestjs/websockets',
-          'class-transformer',
-          'class-validator',
-        ],
-      },
+      // for case using API gate need add:
+      // vpc,
+      // vpcSubnets,
+      // securityGroups,
+      // allowPublicSubnet: true,
     });
 
     // exposes the lambda function via HTTP URL
-    const { url } = server.addFunctionUrl({
+    const { url } = cartApiHandler.addFunctionUrl({
       authType: lambda.FunctionUrlAuthType.NONE,
       cors: { allowedOrigins: ['*'] },
     });

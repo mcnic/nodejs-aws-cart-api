@@ -1,18 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { plainToClass } from 'class-transformer';
-// import { CartStatuses } from 'src/cart';
-import {
-  Cart,
-  // CartItemDto,
-  CartStatuses,
-  // Product,
-  // ProductDto,
-} from '../cart/models';
+import { Cart, CartStatuses } from '../cart/models';
 
 @Injectable()
 export class PrismaService extends PrismaClient {
-  async findCartByUserId(userId: string) {
+  async findCartByUserId(userId: string): Promise<Cart> {
     const cart = await this.cart.findFirst({
       where: {
         // user_id: userId, - todo: add auth
@@ -27,7 +20,9 @@ export class PrismaService extends PrismaClient {
         },
       },
     });
-    // return cart;
+    
+    console.log({ cart });
+
     return plainToClass(Cart, cart);
   }
 }
