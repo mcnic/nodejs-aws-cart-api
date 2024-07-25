@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 
 import { CartStatuses } from '../cart/models';
 import { OrderDto } from 'src/order/models';
+import { UserDto } from 'src/users';
 
 @Injectable()
 export class PrismaService extends PrismaClient {
@@ -102,5 +103,25 @@ export class PrismaService extends PrismaClient {
       }),
     ]);
     return { ...createdOrder, cart: { ...updatedCart } };
+  }
+
+  async createUser(user: UserDto) {
+    const createdUser = await this.user.create({ data: user });
+    return createdUser;
+  }
+
+  async findUserById(id: string) {
+    const foundUser = await this.user.findUnique({ where: { id } });
+    return foundUser;
+  }
+
+  async findUserByName(name: string) {
+    const foundUser = await this.user.findUnique({ where: { name } });
+    return foundUser;
+  }
+
+  async deleteUser(id: string) {
+    const deletedUser = await this.user.delete({ where: { id } });
+    return deletedUser;
   }
 }

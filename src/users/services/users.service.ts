@@ -1,28 +1,22 @@
 import { Injectable } from '@nestjs/common';
 
-import { v4 } from 'uuid';
-
 import { User } from '../models';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class UsersService {
-  private readonly users: Record<string, User>;
+  constructor(private prismaService: PrismaService) {}
 
-  constructor() {
-    this.users = {}
+  async findOne(userId: string): Promise<User> {
+    const user = await this.prismaService.findCartByUserId(userId);
+
+    return plainToClass(User, user);
   }
 
-  findOne(userId: string): User {
-    return this.users[ userId ];
+  async createOne({ name, password }: User): Promise<User> {
+    const newUser = await this.prismaService.createUser({ name, password });
+
+    return plainToClass(User, newUser);
   }
-
-  createOne({ name, password }: User): User {
-    const id = v4();
-    const newUser = { id: name || id, name, password };
-
-    this.users[ id ] = newUser;
-
-    return newUser;
-  }
-
 }
