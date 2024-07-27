@@ -3,7 +3,7 @@ import { v4 } from 'uuid';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { plainToClass } from 'class-transformer';
 
-import { Cart } from '../models';
+import { Cart, updatedItemDto } from '../models';
 
 @Injectable()
 export class CartService {
@@ -39,18 +39,15 @@ export class CartService {
     return this.createByUserId(userId);
   }
 
-  async updateByUserId(userId: string, { items }: Cart): Promise<Cart> {
-    const { id, ...rest } = await this.findOrCreateByUserId(userId);
+  async updateByUserId(
+    userId: string,
+    updatedItem: updatedItemDto,
+  ): Promise<Cart> {
+    await this.prisma.updateCartByUserId(userId, updatedItem);
 
-    const updatedCart = {
-      id,
-      ...rest,
-      items: [...items],
-    };
+    const cart = await this.prisma.findCartByUserId(userId);
 
-    this.userCarts[userId] = { ...updatedCart };
-
-    return { ...updatedCart };
+    return await this.findByUserId(userId);
   }
 
   removeByUserId(userId): void {

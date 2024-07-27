@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
-import { CartStatuses } from '../cart/models';
-import { OrderDto } from 'src/order/models';
+import { CartStatuses, updatedItemDto } from '../cart/models';
 import { UserDto } from 'src/users';
 
 @Injectable()
@@ -43,38 +42,38 @@ export class PrismaService extends PrismaClient {
     );
   }
 
-  // async updateCartByUserId(userId: string, updatedItem: CartItemDto) {
-  //   const cart = await this.findOrCreateCartByUserId(userId);
+  async updateCartByUserId(userId: string, updatedItem: updatedItemDto) {
+    const cart = await this.findOrCreateCartByUserId(userId);
 
-  //   const updatedCart = await this.cart.update({
-  //     where: { id: cart.id },
-  //     data: {
-  //       items: {
-  //         upsert: {
-  //           where: {
-  //             cart_id_product_id: {
-  //               cart_id: cart.id,
-  //               product_id: updatedItem.product_id,
-  //             },
-  //           },
-  //           create: {
-  //             product_id: updatedItem.product_id,
-  //             count: updatedItem.count,
-  //           },
-  //           update: { count: updatedItem.count },
-  //         },
-  //       },
-  //       updated_at: new Date(),
-  //     },
-  //     include: {
-  //       items: {
-  //         select: { product_id: true, count: true },
-  //       },
-  //     },
-  //   });
+    const updatedCart = await this.cart.update({
+      where: { id: cart.id },
+      data: {
+        items: {
+          upsert: {
+            where: {
+              cart_id_product_id: {
+                cart_id: cart.id,
+                product_id: updatedItem.product.id,
+              },
+            },
+            create: {
+              product_id: updatedItem.product.id,
+              count: updatedItem.count,
+            },
+            update: { count: updatedItem.count },
+          },
+        },
+        updated_at: new Date(),
+      },
+      include: {
+        items: {
+          select: { product_id: true, count: true },
+        },
+      },
+    });
 
-  //   return updatedCart;
-  // }
+    return updatedCart;
+  }
 
   async createOrder(orderDto: any) {
     const [createdOrder, updatedCart] = await this.$transaction([

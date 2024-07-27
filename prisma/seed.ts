@@ -10,7 +10,7 @@ async function main() {
     data: {
       title: 'prod 1',
       description: 'prod 1',
-      price: 1,
+      price: 1.1,
       image: 'https:/1',
     },
   });

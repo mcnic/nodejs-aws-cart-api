@@ -6,7 +6,6 @@ import {
   Body,
   Req,
   Post,
-  UseGuards,
   HttpStatus,
 } from '@nestjs/common';
 
@@ -16,6 +15,7 @@ import { AppRequest, getUserIdFromRequest } from '../shared';
 
 import { calculateCartTotal } from './models-rules';
 import { CartService } from './services';
+import { CartResponse, updatedItemDto } from './models';
 
 @Controller('api/profile/cart')
 export class CartController {
@@ -27,38 +27,29 @@ export class CartController {
   // @UseGuards(JwtAuthGuard)
   // @UseGuards(BasicAuthGuard)
   @Get()
-  async findUserCart(@Req() req: AppRequest) {
+  async findUserCart(@Req() req: AppRequest): Promise<CartResponse> {
     const userId = getUserIdFromRequest(req);
     console.log({ userId });
 
     const cart = await this.cartService.findOrCreateByUserId(userId);
     console.log('findUserCart cart', cart);
 
-    return {
-      statusCode: HttpStatus.OK,
-      message: 'OK',
-      data: { cart, total: calculateCartTotal(cart) },
-    };
+    return { cart, total: calculateCartTotal(cart) };
   }
 
   // @UseGuards(JwtAuthGuard)
   // @UseGuards(BasicAuthGuard)
   @Put()
-  async updateUserCart(@Req() req: AppRequest, @Body() body) {
-    // TODO: validate body payload...
+  async updateUserCart(
+    @Req() req: AppRequest,
+    @Body() body: updatedItemDto,
+  ): Promise<CartResponse> {
     const cart = await this.cartService.updateByUserId(
       getUserIdFromRequest(req),
       body,
     );
 
-    return {
-      statusCode: HttpStatus.OK,
-      message: 'OK',
-      data: {
-        cart,
-        total: calculateCartTotal(cart),
-      },
-    };
+    return { cart, total: calculateCartTotal(cart) };
   }
 
   // @UseGuards(JwtAuthGuard)

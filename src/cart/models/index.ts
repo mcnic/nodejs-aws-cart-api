@@ -37,3 +37,12 @@ export class Cart {
   status: CartStatuses;
   items: CartItem[];
 }
+
+export type CartResponse = {
+  cart: Cart;
+  total: number;
+};
+export type updatedItemDto = {
+  count: number;
+  product: Product;
+};
