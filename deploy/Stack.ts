@@ -1,6 +1,8 @@
 import * as cdk from 'aws-cdk-lib';
+import { Cors, LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway';
+import { SecurityGroup, Vpc } from 'aws-cdk-lib/aws-ec2';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
-import { Code, Function, Runtime } from 'aws-cdk-lib/aws-lambda';
+import { Code, Function, HttpMethod, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import 'dotenv/config';
 
@@ -27,6 +29,16 @@ export class Stack extends cdk.Stack {
     //   },
     // });
 
+    // const vpc = Vpc.fromLookup(this, 'DefaultVpc', {
+    //   isDefault: true,
+    // });
+
+    // const securityGroups = [
+    //   new SecurityGroup(this, 'PostgresSecurityGroup', {
+    //     vpc: vpc,
+    //   }),
+    // ];
+
     const cartApiHandler = new Function(this, 'CartHandler', {
       functionName: 'nodejs-aws-cart-api',
       code: Code.fromAsset('dist/handlers/cart'),
@@ -38,17 +50,23 @@ export class Stack extends cdk.Stack {
       },
       // for case using API gate need add:
       // vpc,
-      // vpcSubnets,
+      // vpcSubnets: {
+      //   // subnets: vpc.publicSubnets,
+      //   availabilityZones: ['us-east-1a'],
+      // },
       // securityGroups,
-      // allowPublicSubnet: true,
+      allowPublicSubnet: true,
     });
 
-    // exposes the lambda function via HTTP URL
-    const { url } = cartApiHandler.addFunctionUrl({
-      authType: lambda.FunctionUrlAuthType.NONE,
-      cors: { allowedOrigins: ['*'] },
+    const api = new RestApi(this, 'CartServiceApi');
+    const root = api.root.addResource('{proxy+}');
+    root.addMethod('ANY', new LambdaIntegration(cartApiHandler));
+    root.addCorsPreflight({
+      allowOrigins: Cors.ALL_ORIGINS,
+      allowHeaders: Cors.DEFAULT_HEADERS,
+      allowMethods: ['OPTIONS', 'GET', 'POST', 'PUT'],
     });
 
-    new cdk.CfnOutput(this, 'Url', { value: url });
+    new cdk.CfnOutput(this, 'Url', { value: api.url });
   }
 }
