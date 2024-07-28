@@ -7,6 +7,16 @@ import { plainToClass } from 'class-transformer';
 export class OrderService {
   constructor(private prismaService: PrismaService) {}
 
+  async getAllOrders(): Promise<Order[]> {
+    const orders = await this.prismaService.order.findMany({
+      // where: {
+      //   id: orderId,
+      // },
+    });
+
+    return orders.map((order) => plainToClass(Order, order));
+  }
+
   async findById(orderId: string): Promise<Order> {
     const order = await this.prismaService.order.findFirst({
       where: {
@@ -19,6 +29,7 @@ export class OrderService {
 
   async create(dto: OrderDto): Promise<Order> {
     const order = await this.prismaService.createOrder(dto);
+    console.log({ dto, order });
 
     return plainToClass(Order, order);
   }

@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 
 import { CartStatuses, updatedItemDto } from '../cart/models';
 import { UserDto } from 'src/users';
+import { OrderDto } from 'src/order';
 
 @Injectable()
 export class PrismaService extends PrismaClient {
@@ -73,6 +74,23 @@ export class PrismaService extends PrismaClient {
     });
 
     return updatedCart;
+  }
+
+  async getOrders() {
+    return await this.order.findMany({
+      where: {
+        // user_id: userId, - todo: add auth
+        // status: CartStatuses.OPEN,
+      },
+      include: {
+        // items: {
+        //   select: {
+        //     product: true,
+        //     count: true,
+        //   },
+        // },
+      },
+    });
   }
 
   async createOrder(orderDto: any) {

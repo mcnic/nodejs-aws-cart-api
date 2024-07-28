@@ -34,3 +34,15 @@ export type Delivery = {
 };
 
 export type OrderDto = Omit<Order, 'id'>;
+
+export type OrderItem = {
+  productId: string;
+  count: number;
+};
+
+export type OrderResponse = {
+  id: string;
+  addderss: any;
+  items: OrderItem[];
+  statusHistory: any;
+}[];
