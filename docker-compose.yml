@@ -1,0 +1,31 @@
+name: cart-api
+services:
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - PG_HOST=${PG_HOST}
+      - PG_DB=${PG_DB}
+      - PG_USER=${PG_USER}
+      - PG_PASSWORD=${PG_PASSWORD}
+      - PG_PORT=${PG_PORT}
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${PG_USER}']
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
+  server:
+    image: mcnic/aws-cart-service
+    command: sh -c "npm run db:deploy && npm run db:seed && npm run start:prod"
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    environment:
+      - PORT=${SERVER_PORT}
+      - DATABASE_URL=${DATABASE_URL}
