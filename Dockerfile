@@ -30,7 +30,7 @@ COPY --from=build /tmp/dev/node_modules/.prisma ./node_modules/.prisma/
 COPY --from=build /tmp/dev/prisma ./prisma/
 
 COPY --from=build /tmp/dev/dist/main.js ./dist/
-# # COPY --from=build /tmp/dev/dist/seed.js ./dist/
+COPY --from=build /tmp/dev/dist/seed.js ./dist/
 COPY --from=build /tmp/dev/package.json ./
 
 EXPOSE 4000
