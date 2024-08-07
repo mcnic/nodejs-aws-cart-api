@@ -32,12 +32,13 @@
     "docker:up": "docker compose --env-file .env up --detach",
     "docker:down": "docker compose down",
     "eb:init": "eb init mcnic-cart-api",
-    "eb:create2": "eb create dev2 --cname mcnic-cart-api-dev2 --single",
-    "eb:create3": "env-cmd -x -f .env eb create prod --cname mcnic-cart-api-prod --single --envvars DATABASE_URL=\\$DATABASE_URL SERVER_PORT=\\$SERVER_PORT PG_USER=\\$PG_USER PG_PASSWORD=\\$PG_PASSWORD --instance-types=t2.micro",
-    "eb:create": "env-cmd -x -f .env eb create prod --cname mcnic-cart-api-prod --single --envvars DATABASE_URL=\\$DATABASE_URL --instance-types=t2.micro",
-    "eb:setenv": "env-cmd -x -f .env eb setenv DATABASE_URL=\\$DATABASE_URL SERVER_PORT=\\$SERVER_PORT PG_USER=\\$PG_USER PG_PASSWORD=\\$PG_PASSWORD",
-    "eb:deploy": "eb deploy prod",
-    "eb:terminate": "eb terminate --all"
+    "eb:create": "eb create prod3 --cname mcnic-cart-api-prod3 --single",
+    "eb:create-2": "env-cmd -x -f .env eb create prod --cname mcnic-cart-api-prod --single --envvars DATABASE_URL=\\$DATABASE_URL SERVER_PORT=\\$SERVER_PORT PG_USER=\\$PG_USER PG_PASSWORD=\\$PG_PASSWORD --instance-types=t2.micro",
+    "eb:create-3": "env-cmd -x -f .env eb create prod --cname mcnic-cart-api-prod --single --envvars DATABASE_URL=\\$DATABASE_URL SERVER_PORT=\\$SERVER_PORT PG_USER=\\$PG_USER PG_PASSWORD=\\$PG_PASSWORD PG_HOST=\\$PG_HOST --instance-types=t2.micro",
+    "eb:setenv": "env-cmd -x -f .env eb setenv DATABASE_URL=\\${DATABASE_URL} SERVER_PORT=\\$SERVER_PORT PG_USER=\\$PG_USER PG_PASSWORD=\\$PG_PASSWORD PG_HOST=\\$PG_HOST",
+    "eb:deploy": "eb deploy prod3",
+    "eb:terminate": "eb terminate --all",
+    "eb:logs": "eb logs | grep ERROR"
   },
   "dependencies": {
     "@codegenie/serverless-express": "^4.14.1",
