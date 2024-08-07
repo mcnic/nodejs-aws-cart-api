@@ -124,3 +124,11 @@ Nest is [MIT licensed](LICENSE).
 ## TODO
 
 - add auth and check it in CartService
+
+## Elastic Beanstalk
+
+steps:
+
+- `npm run eb:init`
+- `npm run eb:create`
+- `npm run eb:terminate`
