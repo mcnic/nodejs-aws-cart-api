@@ -6,11 +6,8 @@ services:
     ports:
       - 5432:5432
     environment:
-      - PG_HOST=${PG_HOST}
-      - PG_DB=${PG_DB}
-      - PG_USER=${PG_USER}
-      - PG_PASSWORD=${PG_PASSWORD}
-      - PG_PORT=${PG_PORT}
+      - POSTGRES_USER=${PG_USER}
+      - POSTGRES_PASSWORD=${PG_PASSWORD}
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${PG_USER}']
       interval: 3s
@@ -18,8 +15,8 @@ services:
       retries: 5
 
   server:
-    image: mcnic/aws-cart-service
-    command: sh -c "npm run db:deploy && npm run db:seed && npm run start:prod"
+    image: mcnic/cart-api
+    command: sh -c "npm run db:deploy && node ./dist/seed.js && npm run start:prod"
     restart: always
     depends_on:
       db:
