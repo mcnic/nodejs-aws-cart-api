@@ -16,6 +16,7 @@ export class PrismaService extends PrismaClient {
       include: {
         items: {
           select: {
+            product_id: true,
             product: true,
             count: true,
           },
@@ -29,7 +30,11 @@ export class PrismaService extends PrismaClient {
       data: { user_id: id },
       include: {
         items: {
-          select: { product_id: true, count: true },
+          select: {
+            product_id: true,
+            product: true,
+            count: true,
+          },
         },
       },
     });
@@ -46,6 +51,11 @@ export class PrismaService extends PrismaClient {
   async updateCartByUserId(userId: string, updatedItem: updatedItemDto) {
     const cart = await this.findOrCreateCartByUserId(userId);
 
+    const product_id = updatedItem.product.id;
+    const count = updatedItem.count;
+
+    console.log('updateCartByUserId', { cart, cartItems: cart.items, updatedItem, product_id });
+
     const updatedCart = await this.cart.update({
       where: { id: cart.id },
       data: {
@@ -54,14 +64,14 @@ export class PrismaService extends PrismaClient {
             where: {
               cart_id_product_id: {
                 cart_id: cart.id,
-                product_id: updatedItem.product.id,
+                product_id,
               },
             },
             create: {
-              product_id: updatedItem.product.id,
-              count: updatedItem.count,
+              product_id,
+              count,
             },
-            update: { count: updatedItem.count },
+            update: { count },
           },
         },
         updated_at: new Date(),

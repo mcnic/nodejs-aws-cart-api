@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { bootstrap } from './bootstrap';
 
-const port = process.env.PORT || 4000;
+const port = process.env.SERVER_PORT || 4000;
 
 console.log('NODE_ENV', process.env.NODE_ENV);
 

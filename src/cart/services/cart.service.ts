@@ -13,6 +13,8 @@ export class CartService {
 
   async findByUserId(userId: string): Promise<Cart> {
     const cart = await this.prisma.findCartByUserId(userId);
+    console.log('findByUserId', cart);
+    
 
     return plainToClass(Cart, cart);
   }

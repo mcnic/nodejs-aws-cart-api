@@ -10,6 +10,7 @@ export class Product {
   title: string;
   description: string;
   price: number;
+  image: string;
 }
 
 export type ProductDto = Omit<Product, 'id'>;
